@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -154,6 +156,23 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
         for (int id : switchIds) {
             ((Switch) view.findViewById(id)).setOnCheckedChangeListener(saveSwitchListener);
         }
+
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                saveDetails(getView(),Globals.currentTrip);
+            }
+        };
+
+        ((EditText) view.findViewById(R.id.odoStartET)).addTextChangedListener(textWatcher);
+        ((EditText) view.findViewById(R.id.odoEndET)).addTextChangedListener(textWatcher);
     }
 
     public void showRoadTypeDialog(final KTrip trip) {
@@ -327,7 +346,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
     }
 
     public void saveDetails(View view, KTrip trip){
-        Log.w(Globals.LOG,"SAVE");
+        Log.w(Globals.LOG,"SAVE DETAILS");
         if (trip != null) {
             boolean odometerStartEmpty = ((TextView) view.findViewById(R.id.odoStartET)).getText().length() == 0;
             boolean odometerEndEmpty = ((TextView) view.findViewById(R.id.odoEndET)).getText().length() == 0;

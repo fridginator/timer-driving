@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -168,7 +169,7 @@ public class NetworkingHelper {
         }
 
         private void showTurnOnDataDialog() {
-            if (!waiting) {
+            if (!waiting && false) { /// uncomment false
                 Log.d("NETWORKER", "showing dialog...");
                 waiting = true;
 
@@ -206,6 +207,9 @@ public class NetworkingHelper {
                     }
                 };
                 mainHandler.post(myRunnable);
+            }
+            else if (!waiting) {
+                Toast.makeText(context,"Timer Driving: No internet connection!",Toast.LENGTH_LONG).show();
             }
         }
     }

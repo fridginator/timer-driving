@@ -74,7 +74,7 @@ public class TripListFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
-        new RefreshTotalsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        //new RefreshTotalsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //uncomment for re-calc totals on resume
     }
 
     private class RefreshTotalsTask extends AsyncTask<Void,Void,Void> {

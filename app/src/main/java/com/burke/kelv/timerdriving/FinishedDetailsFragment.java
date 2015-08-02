@@ -10,11 +10,14 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.Switch;
@@ -132,6 +135,22 @@ public class FinishedDetailsFragment extends Fragment {
                     ((TextView)view.findViewById(R.id.distanceTV)).setText("Distance: " +
                             Math.round(metres/1000) + " kms");
 
+                    int originalOdoStart = 0;
+                    int originalOdoEnd = 0;
+                    try {
+                        originalOdoStart = Integer.parseInt(((EditText) view.findViewById(R.id.odoStartET)).getText().toString());
+                        originalOdoEnd = Integer.parseInt(((EditText) view.findViewById(R.id.odoEndET)).getText().toString());
+                    } catch (Exception e ) {}
+
+                    int odometerStart = getChangeForType(Change.ODO_START) == null ? c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_ODO_START))
+                            : getChangeForType(Change.ODO_START).getNewValue();
+                    int odometerEnd = getChangeForType(Change.ODO_END) == null ? c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_ODO_END))
+                            : getChangeForType(Change.ODO_END).getNewValue();
+                    if (odometerStart != 0 && odometerStart != originalOdoStart)
+                        ((EditText) view.findViewById(R.id.odoStartET)).setText(""+odometerStart);
+                    if (odometerEnd != 0 && odometerEnd != originalOdoEnd)
+                        ((EditText) view.findViewById(R.id.odoEndET)).setText(""+odometerEnd);
+
                     loadRoadType(c,view);
 
                     setupOnClickListeners(view,c);
@@ -171,7 +190,7 @@ public class FinishedDetailsFragment extends Fragment {
                 showChangeNightDialog(isChecked);
             }
         });
-        CompoundButton.OnCheckedChangeListener trafficListener = new CompoundButton.OnCheckedChangeListener() {
+        final CompoundButton.OnCheckedChangeListener trafficListener = new CompoundButton.OnCheckedChangeListener() {
             int originalTraffic = c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_TRAFFIC));
             SwitchCompat lightSwitch = (SwitchCompat) view.findViewById(R.id.lightTrafficSwitch);
             SwitchCompat mediumSwitch = (SwitchCompat) view.findViewById(R.id.mediumTrafficSwitch);
@@ -237,6 +256,63 @@ public class FinishedDetailsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 showDeleteTripDialog();
+            }
+        });
+
+        ((EditText) view.findViewById(R.id.odoStartET)).addTextChangedListener(new TextWatcher() {
+            int originalStart = c.getInt(c.getColumnIndex(DBHelper.TRIP.KEY_ODO_START));
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    int newStart = Integer.parseInt(s.toString());
+                    deleteAllChangesOfType(Change.ODO_START);
+                    if (originalStart == newStart) {
+                        updateSaveBar();
+                        return;
+                    }
+                    changes.add(new Change(Change.ODO_START,newStart));
+                    updateSaveBar();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    deleteAllChangesOfType(Change.ODO_START);
+                    updateSaveBar();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        ((EditText) view.findViewById(R.id.odoEndET)).addTextChangedListener(new TextWatcher() {
+            int originalEnd = c.getInt(c.getColumnIndex(DBHelper.TRIP.KEY_ODO_END));
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    int newEnd = Integer.parseInt(s.toString());
+                    deleteAllChangesOfType(Change.ODO_END);
+                    if (originalEnd == newEnd) {
+                        updateSaveBar();
+                        return;
+                    }
+                    changes.add(new Change(Change.ODO_END,newEnd));
+                    updateSaveBar();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    deleteAllChangesOfType(Change.ODO_END);
+                    updateSaveBar();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
             }
         });
     }
@@ -509,7 +585,7 @@ public class FinishedDetailsFragment extends Fragment {
 
     public void saveDetails(){
         boolean odometerStartEmpty = ((TextView) getView().findViewById(R.id.odoStartET)).getText().length() == 0;
-        boolean odometerEndEmpty = ((TextView) getView().findViewById(R.id.odoStartET)).getText().length() == 0;
+        boolean odometerEndEmpty = ((TextView) getView().findViewById(R.id.odoEndET)).getText().length() == 0;
 
         int odoStart = 0;
         int odoEnd = 0;
@@ -532,8 +608,8 @@ public class FinishedDetailsFragment extends Fragment {
         int timeOfDay = ConversionHelper.getTimeOfDayFromBools(isDayTime,isDawnDusk,isNightTime);
 
         DBHelper dbHelper = MyApplication.getStaticDbHelper();
-        dbHelper.updateTripSingleColumn(tripId, DBHelper.TRIP.KEY_ODO_START,!odometerStartEmpty?odoStart:0);
-        dbHelper.updateTripSingleColumn(tripId, DBHelper.TRIP.KEY_ODO_END,!odometerEndEmpty?odoEnd:0);
+        dbHelper.updateTripSingleColumn(tripId, DBHelper.TRIP.KEY_ODO_START,odoStart);
+        dbHelper.updateTripSingleColumn(tripId, DBHelper.TRIP.KEY_ODO_END,odoEnd);
         dbHelper.updateTripSingleColumn(tripId, DBHelper.TRIP.KEY_PARKING,ConversionHelper.boolToInt(parking));
         dbHelper.updateTripSingleColumn(tripId, DBHelper.TRIP.KEY_TRAFFIC,traffic);
         dbHelper.updateTripSingleColumn(tripId, DBHelper.TRIP.KEY_WEATHER,weather);
