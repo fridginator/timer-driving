@@ -1,14 +1,26 @@
 package com.burke.kelv.timerdriving;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.util.Calendar;
-import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by kelv on 20/02/2015.
+ *
+ *
+ *
+ * String.format("%d min, %d sec",
+ *TimeUnit.MILLISECONDS.toMinutes(millis),
+ *TimeUnit.MILLISECONDS.toSeconds(millis) -
+ *TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
+ *);
+*
+*For anyone that wants a leading 0 (e.g. for secs 0-9) use %02d instead of %d in the above example
+*http://stackoverflow.com/questions/625433/how-to-convert-milliseconds-to-x-mins-x-seconds-in-java
  */
+
 public class KTime {
     public int id;
     public int hours;
@@ -18,12 +30,16 @@ public class KTime {
     public int date;
     public int month;
     public int year;
-    public int unreadableInt;
+    private int unreadableIntSecs;
     public String readable;
+
+    public static long kDifferenceInMillis = 949323600000L;
+    public static int TYPE_DATETIME = 1;
+    public static int TYPE_TIME_LENGTH = 2;
 
     public KTime(String type){
         if (type.equals(Globals.NOW)) {
-            Calendar c = Calendar.getInstance();
+            Calendar c = GregorianCalendar.getInstance();
             this.hours = c.get(Calendar.HOUR_OF_DAY);
             this.minutes = c.get(Calendar.MINUTE);
             this.seconds = c.get(Calendar.SECOND);
@@ -36,7 +52,7 @@ public class KTime {
             this.readable = KTime.getProperReadable(this, Globals.TIMEFORMAT.HH_MM_SS);
 
             long time= System.currentTimeMillis();
-            this.unreadableInt = (int) (long) time/1000;
+            this.unreadableIntSecs = (int) (long) time/1000;
         }
         else if (type.equals(Globals.ZERO_TIME)) {
             this.hours = 0;
@@ -48,15 +64,61 @@ public class KTime {
             this.year = 0;
 
             this.readable = KTime.getProperReadable(this, Globals.TIMEFORMAT.HH_MM_SS);
-            this.unreadableInt = 0;
+            this.unreadableIntSecs = 0;
         }
         else Log.w(Globals.LOG, "KTime type was not GLOBALS.NOW or ZERO_TIME");
     }
 
-    public KTime(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
+    public long toIntMillis(){
+        if (year != 0) {
+            Calendar c = new GregorianCalendar(year, month, date, hours, minutes, seconds);
+            return (c.getTimeInMillis() - kDifferenceInMillis);
+        } else return TimeUnit.HOURS.toMillis(this.hours)
+                    + TimeUnit.HOURS.toMillis(this.minutes)
+                    + TimeUnit.HOURS.toMillis(this.seconds);
 
+    }
+
+    public int toIntSeconds() {
+        return (int) toIntMillis() / 1000;
+    }
+
+    public KTime(int seconds, int type) {
+        if (type == TYPE_DATETIME) {
+            GregorianCalendar c = new GregorianCalendar();
+            c.setTimeInMillis((seconds * 1000L + kDifferenceInMillis));
+
+            this.hours = c.get(Calendar.HOUR_OF_DAY);
+            this.minutes = c.get(Calendar.MINUTE);
+            this.seconds = c.get(Calendar.SECOND);
+
+            this.dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+            this.date = c.get(Calendar.DATE);
+            this.month = c.get(Calendar.MONTH);
+            this.year = c.get(Calendar.YEAR);
+
+            this.readable = KTime.getProperReadable(this, Globals.TIMEFORMAT.HH_MM_SS);
+
+            long time= c.getTimeInMillis();
+            this.unreadableIntSecs = (int) (long) time/1000;
+        }
+        else if (type == TYPE_TIME_LENGTH) {
+            this.dayOfWeek = 0;
+            this.date = 0;
+            this.month = 0;
+            this.year = 0;
+
+            this.hours = (int) TimeUnit.SECONDS.toHours(seconds);
+            this.minutes = (int) TimeUnit.SECONDS.toMinutes(seconds) - this.hours*60;
+            this.seconds = seconds - this.hours*3600 - this.minutes*60;
+
+            this.readable = KTime.getProperReadable(this, Globals.TIMEFORMAT.HH_MM_SS);
+
+            this.unreadableIntSecs = seconds;
+        }
+    }
+
+    public KTime(Calendar c) {
         this.hours = c.get(Calendar.HOUR_OF_DAY);
         this.minutes = c.get(Calendar.MINUTE);
         this.seconds = c.get(Calendar.SECOND);
@@ -68,9 +130,10 @@ public class KTime {
 
         this.readable = KTime.getProperReadable(this, Globals.TIMEFORMAT.HH_MM_SS);
 
-        long time= System.currentTimeMillis();
-        this.unreadableInt = (int) (long) time/1000;
+        long time= c.getTimeInMillis();
+        this.unreadableIntSecs = (int) (long) time/1000;
     }
+
 
     public boolean isAfter(KTime compare) {
         if (compare == null) return false;
@@ -138,11 +201,12 @@ public class KTime {
         newTime.month = time.month;
         newTime.year = time.year;
         newTime.readable = time.readable;
-        newTime.unreadableInt = time.unreadableInt;
+        newTime.unreadableIntSecs = time.unreadableIntSecs;
         newTime.id = time.id;
         return newTime;
     }
 
+    @Deprecated
     static public String getReadableTime(Integer unreadable){
         if (unreadable == null) {
             Calendar c = Calendar.getInstance();
@@ -328,4 +392,5 @@ public class KTime {
         }
         return null;
     }
+
 }

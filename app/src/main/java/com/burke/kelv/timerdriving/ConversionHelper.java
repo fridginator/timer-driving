@@ -134,4 +134,23 @@ public class ConversionHelper {
         return strBuilder.toString();
     }
 
+    public static String tripStatusIntToString(int status) {
+        switch (status) {
+            case KTrip.STATUS.RUNNING:
+                return "RUNNING";
+            case KTrip.STATUS.PAUSED:
+                return "PAUSED";
+            case KTrip.STATUS.NOT_INITIALISED:
+                return "NOT INITIALISED";
+            case KTrip.STATUS.NOT_RUNNING:
+                return "NOT RUNNING";
+            case KTrip.STATUS.PLACEHOLDER_TRIP:
+                return "PLACEHOLDER TRIP";
+            case KTrip.STATUS.FINISHED:
+                return "FINISHED";
+            default:
+                return "";
+        }
+    }
+
 }

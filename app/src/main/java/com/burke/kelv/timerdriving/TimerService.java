@@ -38,6 +38,7 @@ public class TimerService extends Service {
     @Override
     public void onCreate() {
         LocalBroadcastManager.getInstance(this).registerReceiver(timerDataReceiver, new IntentFilter(notificationTimerBroadcastId) );
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateNotificationReceiver, new IntentFilter(tripChangedStateBroadcast) );
         super.onCreate();
     }
 
@@ -79,12 +80,12 @@ public class TimerService extends Service {
                                 Bitmap.createScaledBitmap(icon, 256, 256, false))
                         .setContentIntent(pendingIntent)
                         .setOngoing(true)
-                        .addAction(android.R.drawable.ic_media_play, "Play",
+                        .addAction(android.R.drawable.ic_media_play, "",
                                 pplayIntent)
-                        .addAction(android.R.drawable.ic_media_pause, "Pause",
+                        .addAction(android.R.drawable.ic_media_pause, "",
                                 pPauseIntent)
                         .addAction(R.drawable.ic_media_stop,
-                                "Stop", pstopIntent);
+                                "", pstopIntent);
 
                 notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
                 //notificationManager.notify(notificationID, builder.build());
@@ -216,13 +217,23 @@ public class TimerService extends Service {
             String time = intent.getStringExtra("minutes");
             Boolean listeningRequest = intent.getBooleanExtra("listeningRequest", false);
             if (time != null && !time.equals("")) {
-                builder.setContentText("Current Trip: " + time);
+                String status = ConversionHelper.tripStatusIntToString(trip.status);
+                builder.setContentText("Current Trip: " + time+"                           " + status);
                 notificationManager.notify(Globals.NOTIFICATION_ID.FOREGROUND_SERVICE, builder.build());
             } if (listeningRequest) {
                 Intent sendIntent = new Intent(Globals.notificationTimerListeningBroadcast);
                 sendIntent.putExtra("listening", true);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(sendIntent);
             }
+        }
+    };
+    private BroadcastReceiver updateNotificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String time = KTime.getProperReadable(Globals.currentTrip.returnElapsed(), TIMEFORMAT.H_MM);
+            String status = ConversionHelper.tripStatusIntToString(trip.status);
+            builder.setContentText("Current Trip: " + time+"                           " + status);
+            notificationManager.notify(Globals.NOTIFICATION_ID.FOREGROUND_SERVICE, builder.build());
         }
     };
 
@@ -233,6 +244,7 @@ public class TimerService extends Service {
         sendIntent.putExtra("listening", false);
         LocalBroadcastManager.getInstance(this).sendBroadcast(sendIntent);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(timerDataReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateNotificationReceiver);
         super.onDestroy();
     }
 
@@ -240,82 +252,4 @@ public class TimerService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    /**
-    **@Deprecated
-    **private void startTimer() {
-    **    latestTime = new KTime(NOW);
-    **   viewUpdaterTimer = new Timer();
-    **   viewUpdaterTimer.scheduleAtFixedRate(new TimerTask() {
-    **                                             @Override
-    **                                             public void run() {
-    **                                                 new Thread(new Runnable() {
-    **                                                     public void run() {
-    **                                                         KTime now = new KTime(NOW);
-    ***                                                         if (latestTime.seconds != now.seconds) {
-    ****                                                             latestTime = now;
-    ****                                                             Log.i(LOG_TAG, "changed: " + latestTime.seconds);
-    *                                                             Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
-    **                                                             Runnable myRunnable = new Runnable() {
-    **                                                                 public void run() {
-    **                                                                     updateViews();
-    **                                                                 }
-    *                                                             };
-    *                                                             mainHandler.post(myRunnable);
-    *                                                         }
-    *                                                     }
-    *                                                 }).start();
-    *                                             }
-    *                                         },
-    *            0,
-    *            100);
-    *    notificationUpdaterTimer = new Timer();
-    *    notificationUpdaterTimer.scheduleAtFixedRate(new TimerTask() {
-    *                                             @Override
-    *                                             public void run() {
-    *                                                 new Thread(new Runnable() {
-    *                                                     public void run() {
-    *                                                         final KTime now = new KTime(NOW);
-    *                                                         if (notificationMinutes != now.minutes) {
-    *                                                             notificationMinutes = now.minutes;
-    *                                                             Log.i(LOG_TAG, "changed notification: " + notificationMinutes);
-    *                                                             Handler mainHandler = new Handler(getApplicationContext().getMainLooper());*
-    *                                                             Runnable myRunnable = new Runnable() {
-    *                                                                 public void run() {
-    *                                                                 }
-    *                                                             };
-    *                                                             mainHandler.post(myRunnable);
-    *                                                         }
-    *                                                     }
-    *                                                 }).start();
-    *                                             }
-    *                                         },
-    *            0,
-    *            60000);
-    *}
-    *@Deprecated
-    *private void stopTimer() {
-    *    viewUpdaterTimer.cancel();
-    *}
-    *@Deprecated
-    *private KTime updateElapsed() {
-    *    elapsedTime = KTime.getDiffBetweenTimes(latestTime, startTime);
-    *    elapsedTime.readable = (elapsedTime.hours+":"+elapsedTime.minutes+":"+elapsedTime.seconds);
-    *    return elapsedTime;
-    *}
-    *@Deprecated
-    *private void updateViews() {
-    *    KTime time = updateElapsed();
-    *    if (time.seconds == 0 && time.minutes > 0) updateNotification(time);
-    *    Intent intent = new Intent(Globals.defaultTimerUpdateBroadcastId);
-    *    intent.putExtra("elapsed", time.readable);
-    *    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    *}
-    *@Deprecated
-    *private void updateNotification(GregorianCalendar time) {
-    *    String noteTime = time.g + ":" + time.minutes;
-    *    builder.setContentText("Current Trip: " + noteTime);
-    *    notificationManager.notify(Globals.NOTIFICATION_ID.FOREGROUND_SERVICE, builder.build());
-    *}
-     **/
 }
