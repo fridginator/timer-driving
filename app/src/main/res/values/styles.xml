@@ -1,0 +1,47 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:textColorPrimary">@color/primary_text_colour</item>
+        <item name="android:textColorSecondary">@color/secondary_text_colour</item>
+    </style>
+    <color name="primaryColourDark">#ff5722</color>
+    <color name="primaryColourLight">#ffff00</color>
+    <color name="primaryColourVeryLight">#40c4ff</color>
+    <color name="secondary_colour">#039BE5</color>
+    <color name="primary_text_colour">#c1000000</color>
+    <color name="secondary_text_colour">#7e000000</color>
+    <color name="whitegrey">#FFF2F2F2</color>
+
+    <color name="material_primary_main">#FF5722</color>
+    <color name="material_primary_status_bar">#E64A19</color>
+    <color name="material_primary_lighter">#FF8A65</color>
+
+    <color name="material_accent_main">#00BCD4</color>
+
+
+    <style name="Theme.AppCompat.Translucent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+    </style>
+
+    <style name="Translucent_Theme" parent="android:Theme.Holo.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="TabLayoutTheme" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@color/primaryColourLight</item>
+    </style>
+</resources>

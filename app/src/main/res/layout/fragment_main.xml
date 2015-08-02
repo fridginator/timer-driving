@@ -1,0 +1,262 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity$PlaceholderFragment">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView2"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:id="@+id/rellayout">
+
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start"
+                android:id="@+id/startButton"
+                android:layout_below="@+id/titleTextView"
+                android:layout_alignParentStart="true"
+                android:layout_toLeftOf="@+id/pauseButton" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pause"
+                android:id="@+id/pauseButton"
+                android:layout_alignParentTop="false"
+                android:layout_centerHorizontal="true"
+                android:layout_alignTop="@+id/startButton" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stop"
+                android:id="@+id/stopButton"
+                android:layout_toEndOf="@+id/pauseButton"
+                android:layout_alignTop="@+id/pauseButton"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="This Trip:"
+                android:id="@+id/elapsedTimeLabel"
+                android:layout_below="@+id/startButton"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                android:text="TOTAL DRIVING"
+                android:id="@+id/titleTextView"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="00:00"
+                android:id="@+id/elapsedTime"
+                android:layout_alignParentTop="false"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/elapsedTimeLabel" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:text="Sub-trips:"
+                android:id="@+id/subtripsTitle"
+                android:textStyle="bold"
+                android:layout_below="@+id/startedTime"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                android:text="NIGHT DRIVING"
+                android:id="@+id/nightDrivingTitle"
+                android:textStyle="bold"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="5dp"
+                android:layout_below="@+id/listView" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start"
+                android:id="@+id/nightStart"
+                android:layout_below="@+id/nightDrivingTitle"
+                android:layout_alignParentStart="true"
+                android:layout_toLeftOf="@+id/pauseButton" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pause"
+                android:id="@+id/nightPause"
+                android:layout_centerHorizontal="true"
+                android:layout_alignTop="@+id/nightStart" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stop"
+                android:id="@+id/nightStop"
+                android:layout_toEndOf="@+id/nightPause"
+                android:layout_alignTop="@+id/nightPause"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="This Trip:"
+                android:id="@+id/textView"
+                android:textStyle="bold"
+                android:layout_below="@+id/nightStart"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="00:00"
+                android:id="@+id/nightElapsed"
+                android:layout_below="@+id/textView"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="------"
+                android:id="@+id/startedTime"
+                android:layout_below="@+id/elapsedTime"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Total:"
+                android:id="@+id/textView3"
+                android:textStyle="bold"
+                android:layout_below="@+id/pauseButton"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="00:00"
+                android:id="@+id/totalTotal"
+                android:layout_below="@+id/textView3"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/tripStatus"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Total:"
+                android:id="@+id/totalNightTitle"
+                android:textStyle="bold"
+                android:layout_below="@+id/nightStart"
+                android:layout_alignParentEnd="true" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trip Details"
+                android:id="@+id/detailsButton"
+                android:layout_below="@+id/nightElapsed"
+                android:layout_marginTop="30dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignEnd="@+id/totalNightTitle"
+                android:background="#64d9d9d9" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Previous Trip List"
+                android:id="@+id/tripListButton"
+                android:background="#64d9d9d9"
+                android:layout_below="@+id/detailsButton"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="10dp" />
+
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/listView"
+                android:layout_below="@+id/subtripsTitle"
+                android:layout_alignParentStart="true"
+                android:longClickable="false"
+                tools:listitem="@layout/subtrip_list_item"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="sefse\nsefsef\neffse\nsefsef\nsgsdrg\nsefse\nsefsef\neffse\nsefsef\nsgsdrg\nsefse\nsefsef\neffse\nsefsef\nsgsdrg\nsefse\nsefsef\neffse\nsefsef\nsgsdrg\nsefse\nsefsef\neffse\nsefsef\nsgsdrg\nsefse\nsefsef\neffse\nsefsef\nsgsdrg\nrf"
+                android:id="@+id/textView19"
+                android:layout_below="@+id/tripListButton"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="27dp"
+                android:visibility="gone" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Show Speed Overlay"
+                android:id="@+id/showSpeed"
+                android:layout_below="@+id/tripListButton"
+                android:layout_alignEnd="@+id/tripListButton"
+                android:checked="true"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/primary_text_colour" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="00:00"
+                android:id="@+id/nightTotal"
+                android:layout_below="@+id/totalNightTitle"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
+
+    </android.support.v4.widget.NestedScrollView >
+
+
+</RelativeLayout>

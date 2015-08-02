@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:textColorPrimary">@color/primary_text_colour</item>
+        <item name="android:textColorSecondary">@color/secondary_text_colour</item>
+
+        <item name="colorAccent">@color/material_accent_main</item>
+        <item name="android:colorPrimary">@color/material_primary_main</item>
+        <item name="android:colorPrimaryDark">@color/material_primary_status_bar</item>
+    </style>
+</resources>

@@ -1,0 +1,54 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        debugconfig {
+            storeFile file('C:/Users/kelv/.android/debug.keystore')
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storePassword 'android'
+        }
+        releaseconfig {
+            keyAlias 'TimerDrivingKey'
+            keyPassword '123martinB00'
+            storeFile file('D:/Users/Kelv/Android/Key_Stores/key_store_1.jks')
+            storePassword '123roryB'
+        }
+    }
+    compileSdkVersion 22
+    buildToolsVersion '22.0.0'
+    defaultConfig {
+        applicationId "com.burke.kelv.timerdriving"
+        minSdkVersion 17
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+        signingConfig signingConfigs.debugconfig
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // }
+            //debug {
+            //    debuggable true
+            signingConfig signingConfigs.releaseconfig
+        }
+        debug {
+            signingConfig signingConfigs.debugconfig
+        }
+    }
+    productFlavors {
+    }
+}
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:cardview-v7:22.2.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
+    compile 'com.afollestad:material-dialogs:0.7.6.0'
+}

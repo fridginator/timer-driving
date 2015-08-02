@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content" android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView3"
+        android:src="@drawable/snackbar_background"
+        android:layout_alignRight="@+id/speedTextView"
+        android:layout_alignBottom="@+id/speedTextView"
+        android:layout_alignTop="@+id/speedTextView"
+        android:layout_alignLeft="@+id/speedTextView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="0.0 kmh"
+        android:id="@+id/speedTextView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:textColor="@android:color/white" />
+
+</RelativeLayout>

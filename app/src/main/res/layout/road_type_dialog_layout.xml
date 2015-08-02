@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <view
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        class="android.support.v7.widget.Toolbar"
+        android:id="@+id/toolbar"
+        android:background="@color/secondary_colour"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/localStTick"
+        android:src="@drawable/ic_cab_done_holo_light"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginTop="7dp"
+        android:visibility="visible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mainRdTick"
+        android:src="@drawable/ic_cab_done_holo_light"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/divider6"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="7dp"
+        android:visibility="visible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/innerCityTick"
+        android:src="@drawable/ic_cab_done_holo_light"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/divider7"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="7dp"
+        android:visibility="visible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/freewayTick"
+        android:src="@drawable/ic_cab_done_holo_light"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/divider8"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="7dp"
+        android:visibility="visible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ruralHwyTick"
+        android:src="@drawable/ic_cab_done_holo_light"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/divider9"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="7dp"
+        android:visibility="visible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ruralOthTick"
+        android:src="@drawable/ic_cab_done_holo_light"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/divider10"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="7dp"
+        android:visibility="visible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gravelTick"
+        android:src="@drawable/ic_cab_done_holo_light"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/divider11"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="7dp"
+        android:visibility="visible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:text="Local Street"
+        android:id="@+id/textView"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/toolbar" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2px"
+        android:id="@+id/divider6"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:background="#ffd9d9d9"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        style="?android:borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/localStButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/divider6" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:text="Main Road"
+        android:id="@+id/textView23"
+        android:layout_below="@+id/divider6"
+        android:layout_alignParentStart="false"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_marginTop="10dp" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2px"
+        android:id="@+id/divider7"
+        android:layout_below="@+id/textView23"
+        android:layout_alignParentStart="true"
+        android:background="#ffd9d9d9"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        style="?android:borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mainRdButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider6"
+        android:layout_alignBottom="@+id/divider7"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:text="Inner City"
+        android:id="@+id/textView24"
+        android:layout_below="@+id/divider7"
+        android:layout_alignParentStart="false"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_marginTop="10dp" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2px"
+        android:id="@+id/divider8"
+        android:layout_below="@+id/textView24"
+        android:layout_alignParentStart="true"
+        android:background="#ffd9d9d9"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        style="?android:borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/innerCityButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider7"
+        android:layout_alignBottom="@+id/divider8"
+        android:layout_alignParentEnd="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:text="Freeway"
+        android:id="@+id/textView25"
+        android:layout_below="@+id/divider8"
+        android:layout_alignParentStart="false"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_marginTop="10dp" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2px"
+        android:id="@+id/divider9"
+        android:layout_below="@+id/textView25"
+        android:layout_alignParentStart="true"
+        android:background="#ffd9d9d9"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        style="?android:borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/freewayButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider8"
+        android:layout_alignBottom="@+id/divider9"
+        android:layout_alignParentEnd="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:text="Rural Highway"
+        android:id="@+id/textView26"
+        android:layout_below="@+id/divider9"
+        android:layout_alignParentStart="false"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_marginTop="10dp" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2px"
+        android:id="@+id/divider10"
+        android:layout_below="@+id/textView26"
+        android:layout_alignParentStart="true"
+        android:background="#ffd9d9d9"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        style="?android:borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ruralHwyButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider9"
+        android:layout_alignBottom="@+id/divider10"
+        android:layout_alignParentEnd="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:text="Rural Other"
+        android:id="@+id/textView27"
+        android:layout_below="@+id/divider10"
+        android:layout_alignParentStart="false"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_marginTop="10dp" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2px"
+        android:id="@+id/divider11"
+        android:layout_below="@+id/textView27"
+        android:layout_alignParentStart="true"
+        android:background="#ffd9d9d9"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        style="?android:borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ruralOthButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider10"
+        android:layout_alignBottom="@+id/divider11"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:text="Gravel"
+        android:id="@+id/textView28"
+        android:layout_below="@+id/divider11"
+        android:layout_alignParentStart="false"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_marginTop="10dp" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2px"
+        android:id="@+id/divider12"
+        android:layout_below="@+id/textView28"
+        android:layout_alignParentStart="true"
+        android:background="#ffd9d9d9"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        style="?android:borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gravelButton"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/divider11"
+        android:layout_alignBottom="@+id/divider12"
+        android:layout_alignParentEnd="true" />
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:measureWithLargestChild="true"
+        android:layout_marginLeft="0dp"
+        android:id="@+id/linearLayout3"
+        android:layout_below="@+id/divider12">
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text= "CANCEL"
+            android:layout_weight="1"
+            android:id="@+id/cancel" />
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="SAVE"
+            android:layout_weight="1"
+            android:id="@+id/ok" />
+    </LinearLayout>
+
+
+</RelativeLayout>

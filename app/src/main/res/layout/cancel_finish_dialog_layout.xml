@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <view
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        class="android.support.v7.widget.Toolbar"
+        android:id="@+id/toolbar"
+        android:background="@color/material_primary_main"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="What would you like to do now?"
+        android:id="@+id/textView20"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp" />
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:measureWithLargestChild="true"
+        android:layout_marginLeft="0dp"
+        android:id="@+id/linearLayout"
+        android:layout_below="@+id/divider12"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp">
+
+        <ImageButton
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/stopButton"
+            android:layout_weight="1"
+            android:src="@drawable/ic_media_stop_light"
+            android:scaleType="center"
+            android:background="?android:attr/selectableItemBackground" />
+
+        <ImageButton
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/pauseButton"
+            android:layout_weight="1"
+            android:src="@drawable/ic_media_pause_light"
+            android:scaleType="center"
+            android:background="?android:attr/selectableItemBackground" />
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/playButton"
+            android:layout_weight="1"
+            style="?android:attr/buttonBarButtonStyle"
+            android:src="@drawable/ic_media_play_light"
+            android:scaleType="fitCenter"
+            android:background="?android:attr/selectableItemBackground" />
+
+    </LinearLayout>
+
+</LinearLayout>
