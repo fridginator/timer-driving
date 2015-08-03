@@ -30,10 +30,10 @@ public class KTime {
     public int date;
     public int month;
     public int year;
-    private int unreadableIntSecs;
+    private long unreadableIntSecs;
     public String readable;
 
-    public static long kDifferenceInMillis = 949323600000L;
+    //public static long kDifferenceInMillis = 949323600000L;
     public static int TYPE_DATETIME = 1;
     public static int TYPE_TIME_LENGTH = 2;
 
@@ -52,7 +52,7 @@ public class KTime {
             this.readable = KTime.getProperReadable(this, Globals.TIMEFORMAT.HH_MM_SS);
 
             long time= System.currentTimeMillis();
-            this.unreadableIntSecs = (int) (long) time/1000;
+            this.unreadableIntSecs = time/1000;
         }
         else if (type.equals(Globals.ZERO_TIME)) {
             this.hours = 0;
@@ -72,21 +72,21 @@ public class KTime {
     public long toIntMillis(){
         if (year != 0) {
             Calendar c = new GregorianCalendar(year, month, date, hours, minutes, seconds);
-            return (c.getTimeInMillis() - kDifferenceInMillis);
+            return c.getTimeInMillis();
         } else return TimeUnit.HOURS.toMillis(this.hours)
-                    + TimeUnit.HOURS.toMillis(this.minutes)
-                    + TimeUnit.HOURS.toMillis(this.seconds);
+                + TimeUnit.MINUTES.toMillis(this.minutes)
+                + TimeUnit.SECONDS.toMillis(this.seconds);
 
     }
 
-    public int toIntSeconds() {
-        return (int) toIntMillis() / 1000;
+    public long toIntSeconds() {
+        return toIntMillis() / 1000;
     }
 
-    public KTime(int seconds, int type) {
+    public KTime(long seconds, int type) {
         if (type == TYPE_DATETIME) {
             GregorianCalendar c = new GregorianCalendar();
-            c.setTimeInMillis((seconds * 1000L + kDifferenceInMillis));
+            c.setTimeInMillis(seconds*1000L);
 
             this.hours = c.get(Calendar.HOUR_OF_DAY);
             this.minutes = c.get(Calendar.MINUTE);
@@ -110,7 +110,7 @@ public class KTime {
 
             this.hours = (int) TimeUnit.SECONDS.toHours(seconds);
             this.minutes = (int) TimeUnit.SECONDS.toMinutes(seconds) - this.hours*60;
-            this.seconds = seconds - this.hours*3600 - this.minutes*60;
+            this.seconds = (int) (seconds - this.hours*3600 - this.minutes*60);
 
             this.readable = KTime.getProperReadable(this, Globals.TIMEFORMAT.HH_MM_SS);
 
@@ -131,7 +131,7 @@ public class KTime {
         this.readable = KTime.getProperReadable(this, Globals.TIMEFORMAT.HH_MM_SS);
 
         long time= c.getTimeInMillis();
-        this.unreadableIntSecs = (int) (long) time/1000;
+        this.unreadableIntSecs = time/1000;
     }
 
 
