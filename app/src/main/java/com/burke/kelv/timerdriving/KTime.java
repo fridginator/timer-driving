@@ -181,6 +181,7 @@ public class KTime {
         return true;
     }
 
+    @Deprecated
     static public KTime newDBTime(KTime time, DBHelper dbHelper) {
         String properReadable = getProperReadable(time,Globals.TIMEFORMAT.HH_MM_SS);
         long id = dbHelper.insertTime(time.hours, time.minutes, time.seconds, time.dayOfWeek, time.date, time.month, time.year, properReadable);

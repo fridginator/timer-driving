@@ -107,6 +107,8 @@ public class DBHelper {
                         + KEY_ELAPSED + " INTEGER"
                         + ");";
     }
+
+    @Deprecated
     public static interface TIME {
         public static final String KEY_ROWID = "_id";
         public static final String KEY_HOURS = "hours";
@@ -136,6 +138,7 @@ public class DBHelper {
                         + KEY_READABLE + " TEXT"
                         + ");";
     }
+
     public static interface LOCATION {
         public static final String KEY_ROWID = "_id";
         public static final String KEY_LATITUDE = "lat";
@@ -180,7 +183,7 @@ public class DBHelper {
     // DataBase info:
     public static final String DATABASE_NAME = "DefaultSavesDatabase";
 
-    public static final int DATABASE_VERSION = 7; // The version number must be incremented each time a change to DB structure occurs.
+    public static final int DATABASE_VERSION = 8; // The version number must be incremented each time a change to DB structure occurs.
 
     private final Context context;
     private DatabaseHelper myDBHelper;
@@ -231,20 +234,21 @@ public class DBHelper {
     }
 
     // Add a new set of values to be inserted into the database.
-    public long insertTrip(int numOfSubs, int realStartID, int realEndID, int realTotalID, int appaStartID, int appaEndID, int appaTotalID,
-                           int odoStart, int odoEnd, int distance, int carID, boolean parking, int traffic, int weather, int roadTypeID,
+    public long insertTrip(int numOfSubs, long realStartTime, long realEndTime, long realTotalTime, long appaStartTime, long appaEndTime,
+                           long appaTotalTime, int odoStart, int odoEnd, int distance, int carID, boolean parking, int traffic,
+                           int weather, int roadTypeID,
                            int light, int parentID, boolean isNight, int status, int drivingTotalAfterID, int nightTotalAfterID, int order) {
         int park = ConversionHelper.boolToInt(parking);
         int night = ConversionHelper.boolToInt(isNight);
 
         ContentValues initialValues = new ContentValues();
         initialValues.put(TRIP.KEY_NUMOFSUBS, numOfSubs);
-        initialValues.put(TRIP.KEY_REAl_START, realStartID);
-        initialValues.put(TRIP.KEY_REAL_END, realEndID);
-        initialValues.put(TRIP.KEY_REAL_TOTAL, realTotalID);
-        initialValues.put(TRIP.KEY_APPA_START, appaStartID);
-        initialValues.put(TRIP.KEY_APPA_END, appaEndID);
-        initialValues.put(TRIP.KEY_APPA_TOTAL, appaTotalID);
+        initialValues.put(TRIP.KEY_REAl_START, realStartTime);
+        initialValues.put(TRIP.KEY_REAL_END, realEndTime);
+        initialValues.put(TRIP.KEY_REAL_TOTAL, realTotalTime);
+        initialValues.put(TRIP.KEY_APPA_START, appaStartTime);
+        initialValues.put(TRIP.KEY_APPA_END, appaEndTime);
+        initialValues.put(TRIP.KEY_APPA_TOTAL, appaTotalTime);
         initialValues.put(TRIP.KEY_ODO_START, odoStart);
         initialValues.put(TRIP.KEY_ODO_END, odoEnd);
         initialValues.put(TRIP.KEY_DISTANCE, distance);
@@ -273,10 +277,10 @@ public class DBHelper {
 
     public void deleteAllTrips() {
         Cursor c = getAllTrips();
-        long rowId = c.getColumnIndexOrThrow(TRIP.KEY_ROWID);
+        int rowId = c.getColumnIndexOrThrow(TRIP.KEY_ROWID);
         if (c.moveToFirst()) {
             do {
-                deleteTrip(c.getLong((int) rowId));
+                deleteTrip(c.getInt(rowId));
             } while (c.moveToNext());
         }
         c.close();
@@ -317,21 +321,22 @@ public class DBHelper {
     }
 
     // Change an existing row to be equal to new data.
-    public boolean updateTrip(long rowId, int numOfSubs, int realStartID, int realEndID, int realTotalID, int appaStartID, int appaEndID, int appaTotalID,
+    public boolean updateTrip(long rowId, int numOfSubs, long realStartTime, long realEndTime, long realTotalTime,
+                              long appaStartTime, long appaEndTime, long appaTotalTime,
                              int odoStart, int odoEnd, int distance, int carID, boolean parking, int traffic, int weather, int roadTypeID,
-                             int light, int parentID, boolean isNight, int status, int drivingTotalAfterID, int nightTotalAfterID, int order) {
+                             int light, int parentID, boolean isNight, int status, long drivingTotalAfterTime, long nightTotalAfterTime, int order) {
         String where = TRIP.KEY_ROWID + "=" + rowId;
         int park = ConversionHelper.boolToInt(parking);
         int night = ConversionHelper.boolToInt(isNight);
 
         ContentValues newValues = new ContentValues();
         newValues.put(TRIP.KEY_NUMOFSUBS, numOfSubs);
-        newValues.put(TRIP.KEY_REAl_START, realStartID);
-        newValues.put(TRIP.KEY_REAL_END, realEndID);
-        newValues.put(TRIP.KEY_REAL_TOTAL, realTotalID);
-        newValues.put(TRIP.KEY_APPA_START, appaStartID);
-        newValues.put(TRIP.KEY_APPA_END, appaEndID);
-        newValues.put(TRIP.KEY_APPA_TOTAL, appaTotalID);
+        newValues.put(TRIP.KEY_REAl_START, realStartTime);
+        newValues.put(TRIP.KEY_REAL_END, realEndTime);
+        newValues.put(TRIP.KEY_REAL_TOTAL, realTotalTime);
+        newValues.put(TRIP.KEY_APPA_START, appaStartTime);
+        newValues.put(TRIP.KEY_APPA_END, appaEndTime);
+        newValues.put(TRIP.KEY_APPA_TOTAL, appaTotalTime);
         newValues.put(TRIP.KEY_ODO_START, odoStart);
         newValues.put(TRIP.KEY_ODO_END, odoEnd);
         newValues.put(TRIP.KEY_DISTANCE, distance);
@@ -344,15 +349,15 @@ public class DBHelper {
         newValues.put(TRIP.KEY_PARENT, parentID);
         newValues.put(TRIP.KEY_IS_NIGHT, night);
         newValues.put(TRIP.KEY_STATUS, status);
-        newValues.put(TRIP.KEY_DRIVING_TOTAL_AFTER, drivingTotalAfterID);
-        newValues.put(TRIP.KEY_NIGHT_TOTAL_AFTER, nightTotalAfterID);
+        newValues.put(TRIP.KEY_DRIVING_TOTAL_AFTER, drivingTotalAfterTime);
+        newValues.put(TRIP.KEY_NIGHT_TOTAL_AFTER, nightTotalAfterTime);
         newValues.put(TRIP.KEY_ORDER, order);
 
         // Insert it into the database.
         return db.update(TRIP.DATABASE_TABLE, newValues, where, null) != 0;
     }
 
-    public boolean updateRunningTrip(long rowId, int numOfSubs, int realStartID, int appaStartID,
+    public boolean updateRunningTrip(long rowId, int numOfSubs, long realStartTime, long appaStartTime,
                               int odoStart, int odoEnd, int distance, int carID, boolean parking, int traffic, int weather, int roadTypeID,
                               int light, int parentID, boolean isNight, int status, int order) {
         String where = TRIP.KEY_ROWID + "=" + rowId;
@@ -361,8 +366,8 @@ public class DBHelper {
 
         ContentValues newValues = new ContentValues();
         newValues.put(TRIP.KEY_NUMOFSUBS, numOfSubs);
-        newValues.put(TRIP.KEY_REAl_START, realStartID);
-        newValues.put(TRIP.KEY_APPA_START, appaStartID);
+        newValues.put(TRIP.KEY_REAl_START, realStartTime);
+        newValues.put(TRIP.KEY_APPA_START, appaStartTime);
         newValues.put(TRIP.KEY_ODO_START, odoStart);
         newValues.put(TRIP.KEY_ODO_END, odoEnd);
         newValues.put(TRIP.KEY_DISTANCE, distance);
@@ -398,7 +403,7 @@ public class DBHelper {
         return db.update(TRIP.DATABASE_TABLE, newValues, where, null) != 0;
     }
 
-    public boolean updateTripSingleColumn(long rowID, String columnKey, int value) {
+    public boolean updateTripSingleColumn(long rowID, String columnKey, long value) {
         //Log.i(Globals.LOG, "updateTripSingleColumn:" + rowID +", " + columnKey + ", " + value);
         String where = TRIP.KEY_ROWID + "=" + rowID;
         ContentValues newValues = new ContentValues();
@@ -421,42 +426,42 @@ public class DBHelper {
     public long newSubTrip(KTrip parentTrip, KTime startTime, int status, KTime elapsedTime) {
         ContentValues values = new ContentValues();
         values.put(SUB.KEY_PARENT_TRIP, parentTrip._id);
-        values.put(SUB.KEY_START, startTime.id);
+        values.put(SUB.KEY_START, startTime.toIntSeconds());
         values.put(SUB.KEY_STATUS, status);
-        values.put(SUB.KEY_ELAPSED, elapsedTime.id);
+        values.put(SUB.KEY_ELAPSED, elapsedTime.toIntSeconds());
 
         return db.insert(SUB.DATABASE_TABLE, null, values);
     }
 
 
-    public long insertSubTrip(int parentTripId, int startTimeId, int endTimeId, int totalTimeId, int distance, int status, int elapsedTimeId) {
+    public long insertSubTrip(int parentTripId, long startTime, long endTime, long totalTime, int distance, int status, long elapsedTime) {
         ContentValues values = new ContentValues();
         values.put(SUB.KEY_PARENT_TRIP, parentTripId);
-        values.put(SUB.KEY_START, startTimeId);
-        values.put(SUB.KEY_END, endTimeId);
-        values.put(SUB.KEY_TOTAL, totalTimeId);
+        values.put(SUB.KEY_START, startTime);
+        values.put(SUB.KEY_END, endTime);
+        values.put(SUB.KEY_TOTAL, totalTime);
         values.put(SUB.KEY_DISTANCE, distance);
         values.put(SUB.KEY_STATUS, status);
-        values.put(SUB.KEY_ELAPSED, elapsedTimeId);
+        values.put(SUB.KEY_ELAPSED, elapsedTime);
 
         return db.insert(SUB.DATABASE_TABLE, null, values);
     }
 
-    public boolean updateSubTrip(int id, int parentTripId, int startTimeId, int endTimeId, int totalTimeId, int distance, int status, int elapsedTimeId) {
+    public boolean updateSubTrip(int id, int parentTripId, long startTime, long endTime, long totalTime, int distance, int status, long elapsedTime) {
         String where = SUB.KEY_ROWID + "=" + id;
         ContentValues values = new ContentValues();
         values.put(SUB.KEY_PARENT_TRIP, parentTripId);
-        values.put(SUB.KEY_START, startTimeId);
-        values.put(SUB.KEY_END, endTimeId);
-        values.put(SUB.KEY_TOTAL, totalTimeId);
+        values.put(SUB.KEY_START, startTime);
+        values.put(SUB.KEY_END, endTime);
+        values.put(SUB.KEY_TOTAL, totalTime);
         values.put(SUB.KEY_DISTANCE, distance);
         values.put(SUB.KEY_STATUS, status);
-        values.put(SUB.KEY_ELAPSED, elapsedTimeId);
+        values.put(SUB.KEY_ELAPSED, elapsedTime);
 
         return db.update(SUB.DATABASE_TABLE, values, where, null) != 0;
     }
 
-    public boolean updateSubTripSingleColumn(int subTripID, String columnKey, int value) {
+    public boolean updateSubTripSingleColumn(int subTripID, String columnKey, long value) {
         ContentValues newValues = new ContentValues();
         String where = SUB.KEY_ROWID + "=" + subTripID;
         newValues.put(columnKey, value);
@@ -509,6 +514,7 @@ public class DBHelper {
         return c;
     }
 
+    @Deprecated
     public long insertTime(int hours, int minutes, int seconds, int dow, int date, int month, int year, String readableString) {
         ContentValues values = new ContentValues();
         values.put(TIME.KEY_HOURS, hours);
@@ -523,6 +529,7 @@ public class DBHelper {
         return db.insert(TIME.DATABASE_TABLE, null, values);
     }
 
+    @Deprecated
     public boolean updateTime(KTime time) {
         String where = TIME.KEY_ROWID + "=" + time.id;
         ContentValues values = new ContentValues();
@@ -537,6 +544,7 @@ public class DBHelper {
         return db.update(TIME.DATABASE_TABLE, values, where, null) != 0;
     }
 
+    @Deprecated
     public Cursor getTimeCursor(long rowId) {
         if (rowId != 0) {
             String where = TIME.KEY_ROWID + "=" + rowId;
@@ -551,6 +559,7 @@ public class DBHelper {
         return null;
     }
 
+    @Deprecated
     public KTime getDBTime(long id) {
         KTime time = new KTime(Globals.ZERO_TIME);
         Cursor c = getTimeCursor(id);
@@ -605,6 +614,7 @@ public class DBHelper {
     }
 
 
+    @Deprecated
     public KTime getTotalAllDrivingTime() {
         KTime time = new KTime(Globals.ZERO_TIME);
         Cursor c = db.query(true, TRIP.DATABASE_TABLE, TRIP.ALL_KEYS, null, null, null, null, null, null);
@@ -652,6 +662,7 @@ public class DBHelper {
         }
     }
 
+    @Deprecated
     public Cursor getAllTimes() {
         String where = null;
         Cursor c = 	db.query(true, TIME.DATABASE_TABLE, TIME.ALL_KEYS, where, null, null, null, null, null);
@@ -715,6 +726,7 @@ public class DBHelper {
         }
     }
     */
+    @Deprecated
     public void orderTrips(String column) {
         Cursor cursor = getAllTrips(TRIP.KEY_ORDER,ASCENDING);
 
@@ -773,7 +785,9 @@ public class DBHelper {
         }
         if (cursor != null) cursor.close();
     }
+    // TODO fix order
 
+    @Deprecated
     public boolean isTripInRightPosition(int position,
                                          ArrayList<Integer> orderedListOfIDs,
                                          SparseArray<Integer> timeIDsFromTripID,
@@ -791,7 +805,7 @@ public class DBHelper {
         }
     }
 
-
+    @Deprecated
     public void orderTripsAndCheckTotals() {
         Log.w(Globals.LOG,"Starting complete re-calculate totals");
         orderTrips(TRIP.KEY_APPA_START);
@@ -841,7 +855,7 @@ public class DBHelper {
         public void onCreate(SQLiteDatabase _db) {
             _db.execSQL(TRIP.TABLE_CREATE_SQL);
             _db.execSQL(SUB.TABLE_CREATE_SQL);
-            _db.execSQL(TIME.TABLE_CREATE_SQL);
+//            _db.execSQL(TIME.TABLE_CREATE_SQL);
             _db.execSQL(LOCATION.TABLE_CREATE_SQL);
         }
 
@@ -852,7 +866,7 @@ public class DBHelper {
 
             _db.execSQL("DROP TABLE IF EXISTS " + TRIP.DATABASE_TABLE);
             _db.execSQL("DROP TABLE IF EXISTS " + SUB.DATABASE_TABLE);
-            _db.execSQL("DROP TABLE IF EXISTS " + TIME.DATABASE_TABLE);
+//            _db.execSQL("DROP TABLE IF EXISTS " + TIME.DATABASE_TABLE);
             _db.execSQL("DROP TABLE IF EXISTS " + LOCATION.DATABASE_TABLE);
 
             onCreate(_db);
