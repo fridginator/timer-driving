@@ -70,7 +70,7 @@ public class KTime {
     }
 
     public long toIntMillis(){
-        if (year != 0) {
+        if (year != 0 && date != 0) {
             Calendar c = new GregorianCalendar(year, month, date, hours, minutes, seconds);
             return c.getTimeInMillis();
         } else return TimeUnit.HOURS.toMillis(this.hours)

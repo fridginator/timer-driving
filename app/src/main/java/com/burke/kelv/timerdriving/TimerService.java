@@ -112,8 +112,6 @@ public class TimerService extends Service {
             if (trip == null) trip = new KTrip(this,0,0,0,0,false,0,0,0,0,0,isNight,KTrip.STATUS.NOT_RUNNING,0,null,null); //TODO GET ORDER
             Boolean showSpeed = intent.getBooleanExtra("speedOverlay",false);
 
-
-
             if (showSpeed) {
                 Intent speedIntent = new Intent(this, FloatingSpeedService.class);
                 speedIntent.setAction(ACTION.STARTFOREGROUND_ACTION);
@@ -125,8 +123,6 @@ public class TimerService extends Service {
                 @Override
                 public void run() {
                     getDetailsFromLastTrip();
-                    Log.d("time","time1");
-                    Log.d("time","time2");
                 }
             }).start();
 
@@ -172,7 +168,6 @@ public class TimerService extends Service {
     }
 
     private void getDetailsFromLastTrip(){
-        Log.w("dihgroidhgrohdrgoidhogd","auieuyfa8isufeg");
         DBHelper dbHelper = MyApplication.getStaticDbHelper();
         Cursor cursor = dbHelper.getLastFinishedTrip(trip._id);
         if (cursor != null) {
@@ -187,13 +182,8 @@ public class TimerService extends Service {
                     trip.roadTypeID = cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_ROAD_TYPE));
                     trip.timeOfDay = cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_LIGHT));
 
-                    trip.totalDrivingBeforeTime = dbHelper.getDBTime(cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER)));
-                    trip.totalDrivingBeforeTime = trip.totalDrivingBeforeTime != null ? trip.totalDrivingBeforeTime : new KTime(Globals.ZERO_TIME);
-                    trip.totalDrivingBeforeTime.id = 0;
-
-                    trip.totalNightBeforeTime = dbHelper.getDBTime(cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER)));
-                    trip.totalNightBeforeTime = trip.totalNightBeforeTime != null ? trip.totalNightBeforeTime : new KTime(Globals.ZERO_TIME);
-                    trip.totalNightBeforeTime.id = 0;
+                    trip.totalDrivingBeforeTime = new KTime(cursor.getLong(cursor.getColumnIndex(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER)),KTime.TYPE_TIME_LENGTH);
+                    trip.totalNightBeforeTime = new KTime(cursor.getLong(cursor.getColumnIndex(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER)),KTime.TYPE_TIME_LENGTH);
 
                     trip.order = (cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_ORDER)) + 1);
 

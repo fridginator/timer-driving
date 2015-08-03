@@ -77,19 +77,19 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
 
     public KTrip() {}
 
-    public KTrip(Context context, int id, int numOfSubs, int realStartID, int realEndID, int realTotalID, int appaStartID, int appaEndID, int appaTotalID,
+    public KTrip(Context context, int id, int numOfSubs, long realStartSec, long realEndSec,
+                 long realTotalSec, long appaStartSec, long appaEndSec, long appaTotalSec,
                  int odoStart, int odoEnd, int distance, int carID, boolean parking, int traffic, int weather, int roadTypeID,
-                 int light, int parentID, boolean isNight, int status, int totalDrivingAfterID, int nightDrivingAfterID, int order) throws Exception {
+                 int light, int parentID, boolean isNight, int status, long totalDrivingAfterSec, long nightDrivingAfterSec, int order) throws Exception {
         if (true) throw new RuntimeException("dont make finished trip");
-        DBHelper dbHelp = MyApplication.getStaticDbHelper();
         this._id = id;
         this.numOfSubtrips = numOfSubs;
-        this.realStartedTime = dbHelp.getDBTime(realStartID);
-        this.realEndTime = dbHelp.getDBTime(realEndID);
-        this.realTotalTime = dbHelp.getDBTime(realTotalID);
-        this.apparentStartTime = dbHelp.getDBTime(appaStartID);
-        this.apparentEndTime = dbHelp.getDBTime(appaEndID);
-        this.apparentTotalTime = dbHelp.getDBTime(appaTotalID);
+        this.realStartedTime = new KTime(realStartSec,KTime.TYPE_DATETIME);
+        this.realEndTime = new KTime(realEndSec,KTime.TYPE_DATETIME);
+        this.realTotalTime = new KTime(realTotalSec,KTime.TYPE_TIME_LENGTH);
+        this.apparentStartTime = new KTime(appaStartSec,KTime.TYPE_DATETIME);
+        this.apparentEndTime = new KTime(appaEndSec,KTime.TYPE_DATETIME);
+        this.apparentTotalTime = new KTime(appaTotalSec,KTime.TYPE_TIME_LENGTH);
         this.odometerStart = odoStart;
         this.odometerEnd = odoEnd;
         this.distance = distance;
@@ -102,11 +102,11 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
         this.parentID = parentID;
         this.isNightTrip = isNight;
         this.status = status;
-        this.totalDrivingAfterTime = dbHelp.getDBTime(totalDrivingAfterID);
-        this.totalNightAfterTime = dbHelp.getDBTime(nightDrivingAfterID);
+        this.totalDrivingAfterTime = new KTime(totalDrivingAfterSec,KTime.TYPE_TIME_LENGTH);
+        this.totalNightAfterTime = new KTime(nightDrivingAfterSec,KTime.TYPE_TIME_LENGTH);
         this.order = order;
 
-        this.subTripIDs = new ArrayList<Integer>();
+        this.subTripIDs = new ArrayList<>();
     }
 
     public KTrip(Context context, int odoStart, int odoEnd, int distance, int carID, boolean parking, int traffic, int weather, int roadTypeID,
@@ -176,13 +176,10 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
         this.status = c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_STATUS));
         this.order = c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_ORDER));
 
-        this.totalDrivingBeforeTime = dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER)));
-        this.totalDrivingBeforeTime = this.totalDrivingBeforeTime != null ? this.totalDrivingBeforeTime : new KTime(Globals.ZERO_TIME);
-        this.totalDrivingBeforeTime.id = 0;
-
-        this.totalNightBeforeTime = dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER)));
-        this.totalNightBeforeTime = this.totalNightBeforeTime != null ? this.totalNightBeforeTime : new KTime(Globals.ZERO_TIME);
-        this.totalNightBeforeTime.id = 0;
+        Cursor lastTripC = dbHelper.getLastFinishedTrip(this._id);
+        this.totalDrivingBeforeTime = new KTime(lastTripC.getLong(lastTripC.getColumnIndex(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER)),KTime.TYPE_TIME_LENGTH);
+        this.totalNightBeforeTime = new KTime(lastTripC.getLong(lastTripC.getColumnIndex(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER)),KTime.TYPE_TIME_LENGTH);
+        lastTripC.close();
 
         c.close();
 
@@ -211,12 +208,13 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
         this.subTripIDs.add((int)subTrip._id);
 
 
-        this.realStartedTime = KTime.newDBTime(realStartTime,dbHelper);
-        this.apparentStartTime = KTime.newDBTime(KTime.roundTimeToMinute(realStartedTime), dbHelper);
+        this.realStartedTime = realStartTime;
+        this.apparentStartTime = KTime.roundTimeToMinute(this.realStartedTime);
 
         this.status = STATUS.PAUSED;
 
-        dbHelper.updateRunningTrip(_id, numOfSubtrips, realStartedTime.id, apparentStartTime.id, odometerStart, odometerEnd, distance, carID, parking, traffic,
+        dbHelper.updateRunningTrip(_id, numOfSubtrips, realStartedTime.toIntSeconds(), apparentStartTime.toIntSeconds(),
+                odometerStart, odometerEnd, distance, carID, parking, traffic,
                 weather, roadTypeID, timeOfDay, parentID, isNightTrip, status, order);
     }
 
@@ -276,8 +274,8 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
     public void start() {
         Log.i(Globals.LOG, "Starting trip from status:" + status);
         if (status == STATUS.NOT_RUNNING) {
-            realStartedTime = KTime.newDBTime(new KTime(Globals.NOW), dbHelper);
-            apparentStartTime = KTime.newDBTime(KTime.roundTimeToMinute(realStartedTime), dbHelper);
+            realStartedTime = new KTime(Globals.NOW);
+            apparentStartTime = KTime.roundTimeToMinute(realStartedTime);
 
             currentSubTrip = new KSubTrip(this,context);
             subTripIDs.add((int)currentSubTrip._id);
@@ -288,8 +286,8 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
             timerHelper.subToQuery = currentSubTrip;
 
             dbHelper.updateTripSingleColumn(_id, DBHelper.TRIP.KEY_NUMOFSUBS, numOfSubtrips); //numOfSubs realStartID appaStartID status
-            dbHelper.updateTripSingleColumn(_id, DBHelper.TRIP.KEY_REAl_START, realStartedTime.id);
-            dbHelper.updateTripSingleColumn(_id, DBHelper.TRIP.KEY_APPA_START, apparentStartTime.id);
+            dbHelper.updateTripSingleColumn(_id, DBHelper.TRIP.KEY_REAl_START, realStartedTime.toIntSeconds());
+            dbHelper.updateTripSingleColumn(_id, DBHelper.TRIP.KEY_APPA_START, apparentStartTime.toIntSeconds());
             dbHelper.updateTripSingleColumn(_id, DBHelper.TRIP.KEY_STATUS, status);
             Globals.currentTrip = this;
             Intent intent = new Intent(Globals.tripChangedStateBroadcast);
@@ -368,32 +366,27 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
             }
         }).start();
 
-        realEndTime = KTime.newDBTime(new KTime(Globals.NOW), dbHelper);
+        realEndTime = new KTime(Globals.NOW);
         realTotalTime = new KTime(Globals.ZERO_TIME);
         Cursor cursor = dbHelper.getSubtripsFromTripID(_id);
         int totalTimeColumn = cursor.getColumnIndexOrThrow(DBHelper.SUB.KEY_TOTAL);
-        Log.w("prep", "1");
         if (cursor.moveToFirst()) {
             int i = 0;
             do {
-                int totalTimeID = cursor.getInt(totalTimeColumn);
-                Log.w("prep","id = " + totalTimeID);
-                KTime total = dbHelper.getDBTime(totalTimeID);
+                KTime total = new KTime(cursor.getLong(totalTimeColumn), KTime.TYPE_TIME_LENGTH);
                 realTotalTime = KTime.addTimes(realTotalTime, total);
                 i++;
             } while (cursor.moveToNext());
             numOfSubtrips = i;
-            realTotalTime = KTime.newDBTime(realTotalTime,dbHelper);
         }
         cursor.close();
 
-        apparentTotalTime = KTime.newDBTime(KTime.roundTimeToMinute(realTotalTime), dbHelper);
+        apparentTotalTime = KTime.roundTimeToMinute(realTotalTime);
         apparentEndTime = KTime.addTimes(apparentStartTime, apparentTotalTime);
         if (apparentEndTime.hours > 24) {
             apparentEndTime.hours -= 24;
             apparentEndTime.date += 1;
         }
-        apparentEndTime = KTime.newDBTime(apparentEndTime,dbHelper);
 
         updateTotalDrivingAfterTime();
         updateTotalNightAfterTime();
@@ -401,18 +394,19 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
         Intent intent = new Intent(Globals.tripChangedStateBroadcast);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
-        if (dbHelper == null) throw new RuntimeException("dbhelper = null");
+        if (dbHelper == null) dbHelper = MyApplication.getStaticDbHelper();
         Log.i(LOG, "stopping trip with total time:" + KTime.getProperReadable(realTotalTime, Globals.TIMEFORMAT.H_MM_SS));
-        dbHelper.updateTrip(_id, numOfSubtrips, realStartedTime.id, realEndTime.id, realTotalTime.id, apparentStartTime.id, apparentEndTime.id, apparentTotalTime.id,
+        dbHelper.updateTrip(_id, numOfSubtrips, realStartedTime.toIntSeconds(), realEndTime.toIntSeconds(), realTotalTime.toIntSeconds(),
+                apparentStartTime.toIntSeconds(), apparentEndTime.toIntSeconds(), apparentTotalTime.toIntSeconds(),
                 odometerStart, odometerEnd, distance, carID, parking, traffic, weather,
-                roadTypeID, timeOfDay, parentID, isNightTrip, status, totalDrivingAfterTime.id, totalNightAfterTime.id, order); ////TODO TOTALDRIVIGNAFTER
+                roadTypeID, timeOfDay, parentID, isNightTrip, status,
+                totalDrivingAfterTime.toIntSeconds(), totalNightAfterTime.toIntSeconds(), order);
     }
 
     public void updateTotalDrivingAfterTime() {
         if (apparentTotalTime != null) {
             totalDrivingAfterTime = KTime.addTimes(totalDrivingBeforeTime, apparentTotalTime);
             totalDrivingAfterTime.seconds = 0;
-            totalDrivingAfterTime = KTime.newDBTime(totalDrivingAfterTime, dbHelper);
         }
     }
 
@@ -420,10 +414,9 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
         if (isNightTrip && apparentTotalTime != null) {
             totalNightAfterTime = KTime.addTimes(totalNightBeforeTime,apparentTotalTime);
             totalNightAfterTime.seconds = 0;
-            totalNightAfterTime = KTime.newDBTime(totalNightAfterTime, dbHelper);
         }
-        else {
-            totalNightAfterTime = KTime.newDBTime(totalNightBeforeTime,dbHelper);
+        else if (!isNightTrip && apparentTotalTime != null){
+            totalNightAfterTime = totalNightBeforeTime;
         }
     }
 
@@ -439,17 +432,16 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
     }
 
     public void updateAllColumnsInDatabase(){
-        Log.w("updateAllColumns",""+_id+ numOfSubtrips+ realStartedTime.id+ realEndTime.id+ realTotalTime.id+ apparentStartTime.id+
-                apparentEndTime.id+ apparentTotalTime.id+ odometerStart+ odometerEnd+ distance+ carID+ parking+
-                traffic+ weather+ roadTypeID+ timeOfDay+ parentID+ isNightTrip+ status+ totalDrivingAfterTime.id+ totalNightAfterTime.id+ order);
-        Boolean b = dbHelper.updateTrip(_id, numOfSubtrips, realStartedTime.id, realEndTime.id, realTotalTime.id, apparentStartTime.id,
-                apparentEndTime.id, apparentTotalTime.id, odometerStart, odometerEnd, distance, carID, parking,
-                traffic, weather, roadTypeID, timeOfDay, parentID, isNightTrip, status, totalDrivingAfterTime.id, totalNightAfterTime.id, order); //TODO TOTALDRIVIGNAFTER
-        Log.e("e","b:"+b);
+        Boolean b = dbHelper.updateTrip(_id, numOfSubtrips, realStartedTime.toIntSeconds(), realEndTime.toIntSeconds(),
+                realTotalTime.toIntSeconds(), apparentStartTime.toIntSeconds(),
+                apparentEndTime.toIntSeconds(), apparentTotalTime.toIntSeconds(), odometerStart, odometerEnd, distance, carID, parking,
+                traffic, weather, roadTypeID, timeOfDay, parentID, isNightTrip, status,
+                totalDrivingAfterTime.toIntSeconds(), totalNightAfterTime.toIntSeconds(), order);
     }
 
     public void updateAllRunningColumnsInDB(){
-        dbHelper.updateRunningTrip(_id, numOfSubtrips, realStartedTime.id, apparentStartTime.id, odometerStart, odometerEnd, distance, carID,
+        dbHelper.updateRunningTrip(_id, numOfSubtrips, realStartedTime.toIntSeconds(),
+                apparentStartTime.toIntSeconds(), odometerStart, odometerEnd, distance, carID,
                 parking, traffic, weather, roadTypeID, timeOfDay, parentID, isNightTrip, status, order);
     }
 
@@ -460,7 +452,6 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
             currentSubTrip.distance += dist;
             MyApplication.getStaticDbHelper().updateSubTripSingleColumn((int) currentSubTrip._id, DBHelper.SUB.KEY_DISTANCE, currentSubTrip.distance);
         }
-
         Intent sendIntent = new Intent(Globals.distanceChangedBroadcast);
         LocalBroadcastManager.getInstance(context).sendBroadcast(sendIntent);
     }

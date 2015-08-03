@@ -34,8 +34,8 @@ public class KSubTrip implements KTimerHelper.TimerHelperInterface {
         this.context = context;
 
         dbHelper = MyApplication.getStaticDbHelper();
-        this.elapsedTime = KTime.newDBTime(new KTime(Globals.ZERO_TIME),dbHelper);
-        this.startTime = KTime.newDBTime(new KTime(Globals.NOW), dbHelper);
+        this.elapsedTime = new KTime(Globals.ZERO_TIME);
+        this.startTime = new KTime(Globals.NOW);
         this._id = dbHelper.newSubTrip(tripToBePartOf,this.startTime,this.status,this.elapsedTime);
         Log.i(Globals.LOG, "new subtrip with id:"+_id);
     }
@@ -48,17 +48,18 @@ public class KSubTrip implements KTimerHelper.TimerHelperInterface {
         this.status = KTrip.STATUS.FINISHED;
 
         dbHelper = MyApplication.getStaticDbHelper();
-        this.elapsedTime = KTime.newDBTime(totalTime,dbHelper);
-        this.totalTime = KTime.newDBTime(totalTime,dbHelper);
-        this.startTime = KTime.newDBTime(startTime, dbHelper);
-        this.endTime = KTime.newDBTime(latestTime,dbHelper);
+        this.elapsedTime = totalTime;
+        this.totalTime = totalTime;
+        this.startTime = startTime;
+        this.endTime = latestTime;
         this._id = dbHelper.newSubTrip(tripToBePartOf,this.startTime,this.status,this.elapsedTime);
-        dbHelper.updateSubTrip((int)_id,partOfTrip_id,startTime.id,endTime.id,this.totalTime.id,distance,this.status,elapsedTime.id);
+        dbHelper.updateSubTrip((int)_id,partOfTrip_id,startTime.toIntSeconds(),endTime.toIntSeconds(),
+                this.totalTime.toIntSeconds(),distance,this.status,elapsedTime.toIntSeconds());
         Log.i(Globals.LOG, "new subtrip with id:"+_id);
     }
 
     public KSubTrip(int id, int parentTripID, int startTimeID, int endTimeID, int totalTimeID, int distance, int status) {
-        // TODO get Times sqlite
+        // TODO get Times sqlite (idk what this means anymore)
 
     }
 
@@ -76,35 +77,21 @@ public class KSubTrip implements KTimerHelper.TimerHelperInterface {
     public KSubTrip stop() {
         updateElapsed();
         status = KTrip.STATUS.FINISHED;
-        totalTime = KTime.newDBTime(elapsedTime, dbHelper);
-        endTime = KTime.newDBTime(new KTime(Globals.NOW),dbHelper);
-        dbHelper.updateSubTrip((int)_id, partOfTrip_id, startTime.id, endTime.id, totalTime.id, distance, status, elapsedTime.id);
+        totalTime = elapsedTime;
+        endTime = new KTime(Globals.NOW);
+        dbHelper.updateSubTrip((int)_id, partOfTrip_id, startTime.toIntSeconds(), endTime.toIntSeconds(),
+                totalTime.toIntSeconds(), distance, status, elapsedTime.toIntSeconds());
         dbHelper = null;
         return this;
     }
 
     public void updateElapsed() {
-        int id = elapsedTime.id;
         if (status == KTrip.STATUS.RUNNING) {
             latestTime = new KTime(Globals.NOW);
         }
         elapsedTime = KTime.getDiffBetweenTimes(latestTime, startTime);
-        elapsedTime.id = id;
-        if (dbHelper != null) {
-            new Thread(new Runnable() {
-                public void run() {
-                    dbHelper.updateTime(elapsedTime);
-                }
-            }).start();
-        }
-        else {
-            dbHelper = MyApplication.getStaticDbHelper();
-            new Thread(new Runnable() {
-                public void run() {
-                    dbHelper.updateTime(elapsedTime);
-                }
-            }).start();
-        }
+        dbHelper = MyApplication.getStaticDbHelper();
+        dbHelper.updateSubTripSingleColumn((int)_id, DBHelper.SUB.KEY_ELAPSED,elapsedTime.toIntSeconds());
     }
 
     public KTime getElapsedTime() {
