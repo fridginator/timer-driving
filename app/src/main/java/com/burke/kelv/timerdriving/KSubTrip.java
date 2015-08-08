@@ -44,6 +44,9 @@ public class KSubTrip implements KTimerHelper.TimerHelperInterface {
         if (status != KTrip.STATUS.FINISHED) throw new RuntimeException("dont make unfinished subtrip with finished constructor");
         this.partOfTrip_id = tripToBePartOf._id;
         this.latestTime = KTime.addTimes(startTime,totalTime);
+        this.latestTime.date = startTime.date;
+        this.latestTime.month = startTime.month;
+        this.latestTime.year = startTime.year;
         this.distance = 0;
         this.status = KTrip.STATUS.FINISHED;
 

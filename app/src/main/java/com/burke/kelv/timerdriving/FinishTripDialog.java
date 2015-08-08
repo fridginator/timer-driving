@@ -57,21 +57,6 @@ public class FinishTripDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-       // View contentView = inflater.inflate(R.layout.finish_trip_layout,null);
-        /*contentView.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("L","D");
-            }
-        });
-        contentView.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getActivity(), "cancel clicked",
-                        Toast.LENGTH_LONG).show();
-                Log.d("L","D");
-            }
-        });*/
         dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.finish_trip_layout);
@@ -510,9 +495,5 @@ public class FinishTripDialog extends DialogFragment {
         dialog.dismiss();
     }
 
-    // @Override
-   // public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-   //     return inflater.inflate(R.layout.finish_trip_layout,container);
-    //}
 
 }

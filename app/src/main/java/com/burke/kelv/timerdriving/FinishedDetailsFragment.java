@@ -92,14 +92,15 @@ public class FinishedDetailsFragment extends Fragment {
                     updateSaveBar();
 
                     ((TextView) view.findViewById(R.id.dateTV)).setText(KTime.getProperReadable(
-                            dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_REAl_START))), Globals.TIMEFORMAT.WORDED_DATE));
+                            new KTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_REAl_START)),KTime.TYPE_DATETIME),
+                            Globals.TIMEFORMAT.WORDED_DATE));
 
                     String start = KTime.getProperReadable(
-                            dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_APPA_START))), Globals.TIMEFORMAT.H_MM);
+                            c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_APPA_START)), Globals.TIMEFORMAT.H_MM,KTime.TYPE_DATETIME);
                     String end = KTime.getProperReadable(
-                            dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_APPA_END))), Globals.TIMEFORMAT.H_MM);
+                            c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_APPA_END)), Globals.TIMEFORMAT.H_MM,KTime.TYPE_DATETIME);
                     String total = KTime.getProperReadable(
-                            dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_APPA_TOTAL))), Globals.TIMEFORMAT.H_MM);
+                            c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_APPA_TOTAL)), Globals.TIMEFORMAT.H_MM,KTime.TYPE_TIME_LENGTH);
                     ((TextView) view.findViewById(R.id.timeTV)).setText(start + " - " + end + "  (" + total + ")");
 
                     updateTotalDrivingTextViews(c,dbHelper,view);
@@ -393,9 +394,9 @@ public class FinishedDetailsFragment extends Fragment {
 
     public void updateTotalDrivingTextViews(Cursor c,DBHelper dbHelper,View view) {
         String totalDriving = KTime.getProperReadable(
-                dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER))), Globals.TIMEFORMAT.H_MM);
+                c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER)), Globals.TIMEFORMAT.H_MM,KTime.TYPE_TIME_LENGTH);
         String totalNightDriving = KTime.getProperReadable(
-                dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER))), Globals.TIMEFORMAT.H_MM);
+                c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER)), Globals.TIMEFORMAT.H_MM,KTime.TYPE_TIME_LENGTH);
         ((TextView)view.findViewById(R.id.totalDrivingTV)).setText("Total: " +totalDriving);
         ((TextView)view.findViewById(R.id.totalNightTV)).setText("( Night: " + totalNightDriving + " )");
     }

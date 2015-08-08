@@ -17,6 +17,8 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Space;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,19 +76,28 @@ public class TripListFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
-        //new RefreshTotalsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //uncomment for re-calc totals on resume
+        new RefreshTotalsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //uncomment for re-calc totals on resume
     }
 
     private class RefreshTotalsTask extends AsyncTask<Void,Void,Void> {
+        MaterialDialog dialog;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            ((TripRecyclerAdapter) recyclerView.getAdapter()).changeCursor(MyApplication.getStaticDbHelper().getAllTrips(DBHelper.TRIP.KEY_ORDER, DBHelper.DESCENDING));
+            dialog = new MaterialDialog.Builder(getActivity())
+                    .title("Processing")
+                    .content("Please Wait...")
+                    .progress(true, 0)
+                    .progressIndeterminateStyle(true)
+                    .cancelable(false)
+                    .show();
+                    ((TripRecyclerAdapter) recyclerView.getAdapter()).changeCursor(MyApplication.getStaticDbHelper().getAllTrips(DBHelper.TRIP.KEY_ORDER, DBHelper.DESCENDING));
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            MyApplication.getStaticDbHelper().orderTripsAndCheckTotals();
+            //MyApplication.getStaticDbHelper().orderTrips(DBHelper.TRIP.KEY_REAl_START,DBHelper.ASCENDING);
+            MyApplication.getStaticDbHelper().orderTripsAndCheckTotals(DBHelper.TRIP.KEY_REAl_START, DBHelper.ASCENDING);
             return null;
         }
 
@@ -94,6 +105,7 @@ public class TripListFragment extends Fragment{
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             ((TripRecyclerAdapter) recyclerView.getAdapter()).changeCursor(MyApplication.getStaticDbHelper().getAllTrips(DBHelper.TRIP.KEY_ORDER, DBHelper.DESCENDING));
+            dialog.dismiss();
         }
     }
 }

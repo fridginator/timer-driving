@@ -12,7 +12,12 @@ import android.util.SparseArray;
 import android.widget.GridLayout;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.IllegalFormatCodePointException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class DBHelper {
 
@@ -183,7 +188,7 @@ public class DBHelper {
     // DataBase info:
     public static final String DATABASE_NAME = "DefaultSavesDatabase";
 
-    public static final int DATABASE_VERSION = 8; // The version number must be incremented each time a change to DB structure occurs.
+    public static final int DATABASE_VERSION = 9; // The version number must be incremented each time a change to DB structure occurs.
 
     private final Context context;
     private DatabaseHelper myDBHelper;
@@ -486,6 +491,16 @@ public class DBHelper {
         String where = null;
         String orderBy = orderByColumn + " " + ascDesc;
         Cursor c = db.query(true,TRIP.DATABASE_TABLE,TRIP.ALL_KEYS,where,null,null,null,orderBy,null,null);
+        if (c != null) {
+            c.moveToFirst();
+        }
+        return c;
+    }
+
+    public Cursor getAllTrips(String[] columns, String orderByColumn, String ascDesc){
+        String where = null;
+        String orderBy = orderByColumn + " " + ascDesc;
+        Cursor c = db.query(true,TRIP.DATABASE_TABLE,columns,where,null,null,null,orderBy,null,null);
         if (c != null) {
             c.moveToFirst();
         }
@@ -807,6 +822,7 @@ public class DBHelper {
 
     @Deprecated
     public void orderTripsAndCheckTotals() {
+        if (true) return;
         Log.w(Globals.LOG,"Starting complete re-calculate totals");
         orderTrips(TRIP.KEY_APPA_START);
         if (false) { Log.w(Globals.LOG,"Finishing complete re-calculate totals"); return; }
@@ -843,8 +859,99 @@ public class DBHelper {
         Log.w(Globals.LOG,"Finishing complete re-calculate totals");
     }
 
+    public void orderTrips(String column, String ascDesc,int yes) {
+        Log.w(Globals.LOG,"ORDERING TRIPSSSSS 1");
+        Cursor cursor = getAllTrips(new String[] {TRIP.KEY_ROWID,column,TRIP.KEY_ORDER} ,TRIP.KEY_ORDER,ASCENDING);
 
+        if (cursor != null && cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndexOrThrow(TRIP.KEY_ROWID);
+            int columnIndex = cursor.getColumnIndexOrThrow(column);
+            int orderIndex= cursor.getColumnIndexOrThrow(TRIP.KEY_ORDER);
+            int lastId = 0;
+            Cursor c = getLastTrip();
+            if (c != null) {
+                lastId = c.getInt(idIndex);
+                c.close();
+            }
 
+            TreeMap<Long,Integer> treeMap = new TreeMap<>();
+            SparseArray<Integer> originalOrders = new SparseArray<>(lastId + 1);
+            do {
+                int id = cursor.getInt(idIndex);
+                long value = cursor.getInt(columnIndex);
+                treeMap.put(value,id);
+                originalOrders.setValueAt(id,cursor.getInt(orderIndex));
+            } while (cursor.moveToNext());
+            Iterator<Integer> iterator = treeMap.values().iterator();
+
+            int order = 0;
+            while (iterator.hasNext()) {
+                int id = iterator.next();
+                int original = originalOrders.valueAt(id);
+                if (order != original) updateTripSingleColumn(id, TRIP.KEY_ORDER, order);
+                order++;
+            }
+        }
+        if (cursor != null) cursor.close();
+        Log.w(Globals.LOG,"FINISHED ORDERING TRIPSSSSS 1");
+    }
+
+    public void orderTripsAndCheckTotals(String columnToOrderBy, String ascDesc) {
+        Log.w(Globals.LOG,"ORDERING TRIPSSSSS + CHECKING TOTALS");
+        orderTrips(columnToOrderBy,ascDesc);
+        Cursor cursor = getAllTrips(new String[]
+                        {TRIP.KEY_ROWID,TRIP.KEY_APPA_TOTAL,TRIP.KEY_IS_NIGHT,TRIP.KEY_NIGHT_TOTAL_AFTER,TRIP.KEY_DRIVING_TOTAL_AFTER},
+                TRIP.KEY_ORDER,ASCENDING);
+        if (cursor != null && cursor.moveToFirst()) {
+            int totalColumn = cursor.getColumnIndexOrThrow(TRIP.KEY_APPA_TOTAL);
+            int isNightColumn = cursor.getColumnIndexOrThrow(TRIP.KEY_IS_NIGHT);
+            int idColumn = cursor.getColumnIndexOrThrow(TRIP.KEY_ROWID);
+            int totalDrvColumn = cursor.getColumnIndexOrThrow(TRIP.KEY_DRIVING_TOTAL_AFTER);
+            int totalNightColumn = cursor.getColumnIndexOrThrow(TRIP.KEY_NIGHT_TOTAL_AFTER);
+
+            long totalDriving = 0L;
+            long totalNightDriving = 0L;
+            do {
+                int id = cursor.getInt(idColumn);
+                long total = cursor.getLong(totalColumn);
+                boolean isNight = ConversionHelper.intToBool(cursor.getInt(isNightColumn));
+
+                totalDriving += total;
+                if (isNight) totalNightDriving += total;
+
+                long originalTotalDrv = cursor.getLong(totalDrvColumn);
+                long originalNightDrv = cursor.getLong(totalNightColumn);
+                if (originalTotalDrv != totalDriving) {
+                    updateTripSingleColumn(id,TRIP.KEY_DRIVING_TOTAL_AFTER,totalDriving);
+                }
+                if (originalNightDrv != totalNightDriving) {
+                    updateTripSingleColumn(id,TRIP.KEY_NIGHT_TOTAL_AFTER,totalNightDriving);
+                }
+            } while (cursor.moveToNext());
+        }
+        if (cursor != null) cursor.close();
+        Log.w(Globals.LOG,"FINISHED ORDERING TRIPSSSSS + CHECKING TOTALS");
+    }
+
+    public void orderTrips(String column, String ascDesc) {
+        Log.w(Globals.LOG,"ORDERING TRIPSSSSS 2");
+        Cursor cursor = getAllTrips(new String[] {TRIP.KEY_ROWID,column,TRIP.KEY_ORDER}, column, ascDesc);
+        if (cursor != null && cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndexOrThrow(TRIP.KEY_ROWID);
+            int orderIndex = cursor.getColumnIndexOrThrow(TRIP.KEY_ORDER);
+            int order = 0;
+            do {
+                int originalOrder = cursor.getInt(orderIndex);
+                if (originalOrder != order) {
+                    int id = cursor.getInt(idIndex);
+                    updateTripSingleColumn(id,TRIP.KEY_ORDER,order);
+                }
+                order++;
+            } while (cursor.moveToNext());
+        }
+        if (cursor != null) cursor.close();
+        Log.w(Globals.LOG,"FINISHED ORDERING TRIPSSSSS 2");
+    }
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context context) {
@@ -864,9 +971,11 @@ public class DBHelper {
             Log.w(TAG, "Upgrading application's database from version " + oldVersion
                     + " to " + newVersion + ", which will destroy all old data!");
 
+            String TIMES_DATABASE_TABLE = "Times";
+
             _db.execSQL("DROP TABLE IF EXISTS " + TRIP.DATABASE_TABLE);
             _db.execSQL("DROP TABLE IF EXISTS " + SUB.DATABASE_TABLE);
-//            _db.execSQL("DROP TABLE IF EXISTS " + TIME.DATABASE_TABLE);
+            _db.execSQL("DROP TABLE IF EXISTS " + TIMES_DATABASE_TABLE);
             _db.execSQL("DROP TABLE IF EXISTS " + LOCATION.DATABASE_TABLE);
 
             onCreate(_db);

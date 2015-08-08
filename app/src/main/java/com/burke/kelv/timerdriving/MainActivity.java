@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 if (Globals.currentTrip == null) {
                     checkLastTrip();
-                    MyApplication.getStaticDbHelper().orderTripsAndCheckTotals();
+                    MyApplication.getStaticDbHelper().orderTrips(DBHelper.TRIP.KEY_REAl_START,DBHelper.ASCENDING);
                 }
             }
         }).start();
@@ -91,19 +91,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if (viewPager.getCurrentItem() != 0) viewPager.setCurrentItem(0,true);
+        else super.onBackPressed();
+    }
+
     public void checkLastTrip() {
         DBHelper dbHelper = MyApplication.getStaticDbHelper();
         Cursor cursor = dbHelper.getLastTrip();
         int id = 0;
         int startTime = 0;
         int numberOfSubs = 0;
-        ArrayList<Integer> elapsedTimes = null;
         if (cursor != null && cursor.moveToFirst()) {
             try {
                 id = cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_ROWID));
                 int status = cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_STATUS));
                 int apparentEndID = cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_APPA_END));
-                Log.w("drhgdrg","hehrere");
+                boolean isNight = ConversionHelper.intToBool(cursor.getInt(cursor.getColumnIndexOrThrow(DBHelper.TRIP.KEY_IS_NIGHT)));
                 if (status == KTrip.STATUS.FINISHED) return;
                 if (apparentEndID != 0) { dbHelper.updateTripSingleColumn(id, DBHelper.TRIP.KEY_STATUS,KTrip.STATUS.FINISHED); return; }
 
@@ -114,27 +119,26 @@ public class MainActivity extends AppCompatActivity {
                 Cursor subtrips = dbHelper.getSubtripsFromTripID(id);
                 int subStatusColumn = subtrips.getColumnIndexOrThrow(DBHelper.SUB.KEY_STATUS);
                 int subTotalTimeClm = subtrips.getColumnIndexOrThrow(DBHelper.SUB.KEY_TOTAL);
-                int subElapsdClm = subtrips.getColumnIndexOrThrow(DBHelper.SUB.KEY_ELAPSED);
+                int subElapsedClm = subtrips.getColumnIndexOrThrow(DBHelper.SUB.KEY_ELAPSED);
 
-                elapsedTimes = new ArrayList<>();
+                int totalElapsedTime = 0;
                 for (int i = 0; i < numberOfSubs; i++) {
                     subtrips.moveToPosition(i);
                     int subStatus = subtrips.getInt(subStatusColumn);
                     if (subStatus == KTrip.STATUS.FINISHED) {
-                        elapsedTimes.add(subtrips.getInt(subTotalTimeClm));
+                        totalElapsedTime += subtrips.getInt(subTotalTimeClm);
                     }
                     else if (subStatus == KTrip.STATUS.RUNNING) {
-                        elapsedTimes.add(subtrips.getInt(subElapsdClm));
+                        totalElapsedTime += subtrips.getInt(subElapsedClm);
                     }
 
                 }
-                KTime totalElapsedTime = new KTime(Globals.ZERO_TIME);
-                for (Integer time : elapsedTimes) {
-                    KTime elapsed = dbHelper.getDBTime(time);
-                    totalElapsedTime = KTime.addTimes(totalElapsedTime,elapsed);
-                }
                 subtrips.close();
-                showUnfinishedLastTripDialog(dbHelper.getDBTime(startTime),totalElapsedTime,dbHelper.tripIsNightTrip(id),id);
+
+                showUnfinishedLastTripDialog(new KTime(startTime,KTime.TYPE_DATETIME),
+                        new KTime(totalElapsedTime,KTime.TYPE_TIME_LENGTH),
+                        isNight,
+                        id);
             }
             catch (Exception e ) {
                 e.printStackTrace();
@@ -531,10 +535,10 @@ public class MainActivity extends AppCompatActivity {
                         totalDrivingTV = (TextView) getActivity().findViewById(R.id.totalTotal);
                     if (totalNightDrivingTV == null)
                         totalNightDrivingTV = (TextView) getActivity().findViewById(R.id.nightTotal);
-                    totalDrivingTV.setText(KTime.getProperReadable( dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER)))
-                            , TIMEFORMAT.H_MM));
-                    totalNightDrivingTV.setText(KTime.getProperReadable( dbHelper.getDBTime(c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER)))
-                            , TIMEFORMAT.H_MM));
+                    totalDrivingTV.setText(KTime.getProperReadable( c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER))
+                            , TIMEFORMAT.H_MM,KTime.TYPE_TIME_LENGTH));
+                    totalNightDrivingTV.setText(KTime.getProperReadable( c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER))
+                            , TIMEFORMAT.H_MM,KTime.TYPE_TIME_LENGTH));
                 }
             }
 
@@ -597,7 +601,8 @@ public class MainActivity extends AppCompatActivity {
 
                 elapsedTextView.setText(KTime.getProperReadable(currentTrip.returnElapsed(), TIMEFORMAT.MM_SS_plusHoursIfAppl));
 
-                if (Globals.currentTrip.isNightTrip) nightElapsedTextView.setText(KTime.getProperReadable(currentTrip.returnElapsed(), TIMEFORMAT.MM_SS_plusHoursIfAppl));
+                if (Globals.currentTrip.isNightTrip) nightElapsedTextView.setText(
+                        KTime.getProperReadable(currentTrip.returnElapsed(), TIMEFORMAT.MM_SS_plusHoursIfAppl));
 
                 updateTotalDrivingTextViews();
                 // get total time
@@ -718,8 +723,7 @@ public class MainActivity extends AppCompatActivity {
             setListViewHeightBasedOnChildren(listView);
            // myCursorAdapter.notifyDataSetChanged();
         }
-
-        public  void setListViewHeightBasedOnChildren(ListView listView) {
+        public void setListViewHeightBasedOnChildren(ListView listView) {
             ListAdapter listAdapter = listView.getAdapter();
             if (listAdapter == null) {
                 // pre-condition

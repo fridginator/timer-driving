@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class KTime {
-    public int id;
+    @Deprecated public int id;
     public int hours;
     public int minutes;
     public int seconds;
@@ -329,6 +329,10 @@ public class KTime {
         }
         return answer;
     }
+    static public KTime addTimes(KTime time, long seconds, int type) {
+        long totalSec = time.toIntSeconds() + seconds;
+        return new KTime(totalSec,type);
+    }
 
     static public String getProperReadable(KTime time, String format) {
         if (time == null) return "ERROR";
@@ -372,6 +376,32 @@ public class KTime {
         } if (format == Globals.TIMEFORMAT.WORDED_DATE) {
             String month = intMonthToShortString(time.month);
             return time.date + " " + month + " " + time.year;
+        }
+        return null;
+    }
+
+    static public String getProperReadable(long secondsInt, String format,int type) {
+        long secs = secondsInt;
+        if (type == TYPE_DATETIME) secs = secondsInt - TimeUnit.DAYS.toSeconds(TimeUnit.SECONDS.toDays(secondsInt));
+        long hours = TimeUnit.SECONDS.toHours(secs);
+        long minutes = ( TimeUnit.SECONDS.toMinutes(secs) - TimeUnit.HOURS.toMinutes(hours));
+        long seconds = ( secs - TimeUnit.MINUTES.toSeconds(minutes) - TimeUnit.HOURS.toSeconds(hours));
+        if (format == Globals.TIMEFORMAT.H_MM_SS) {
+            return String.format("%d:%02d:%02d",hours,minutes,seconds);
+        }
+        if (format == Globals.TIMEFORMAT.MM_SS_plusHoursIfAppl) {
+            if (hours > 0) return String.format("%d:%02d:%02d",hours,minutes,seconds);
+            else return String.format("%d:%02d",minutes,seconds);
+        }
+        if (format == Globals.TIMEFORMAT.H_MM) {
+            return String.format("%d:%02d",hours,minutes);
+        } if (format == Globals.TIMEFORMAT.HH_MM_SS) {
+            return String.format("%02d:%02d:%02d",hours,minutes,seconds);
+        } if (format == Globals.TIMEFORMAT.WORDED_DATE) {
+            GregorianCalendar c = new GregorianCalendar();
+            c.setTimeInMillis(secondsInt*1000L);
+            String month = intMonthToShortString(c.get(Calendar.MONTH));
+            return c.get(Calendar.DATE) + " " + month + " " + c.get(Calendar.YEAR);
         }
         return null;
     }

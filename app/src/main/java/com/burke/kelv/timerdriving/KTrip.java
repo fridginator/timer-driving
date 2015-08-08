@@ -13,6 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.burke.kelv.timerdriving.Globals.LOG;
+import static com.burke.kelv.timerdriving.Globals.ZERO_TIME;
 
 /**
  * Created by kelv on 25/02/2015.
@@ -137,6 +138,8 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
 
         this.totalDrivingBeforeTime = totalDrivingBeforeTime;
         this.totalNightBeforeTime = totalNightBeforeTime;
+        if (this.totalDrivingBeforeTime == null) this.totalDrivingBeforeTime = new KTime(ZERO_TIME);
+        if (this.totalNightBeforeTime == null) this.totalNightBeforeTime = new KTime(ZERO_TIME);
 
         this.context = context;
         this.timerHelper = new KTimerHelper(context, KTimerHelper.TYPE.SECOND,this);
@@ -177,9 +180,15 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
         this.order = c.getInt(c.getColumnIndexOrThrow(DBHelper.TRIP.KEY_ORDER));
 
         Cursor lastTripC = dbHelper.getLastFinishedTrip(this._id);
-        this.totalDrivingBeforeTime = new KTime(lastTripC.getLong(lastTripC.getColumnIndex(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER)),KTime.TYPE_TIME_LENGTH);
-        this.totalNightBeforeTime = new KTime(lastTripC.getLong(lastTripC.getColumnIndex(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER)),KTime.TYPE_TIME_LENGTH);
-        lastTripC.close();
+        if (lastTripC != null && lastTripC.moveToFirst()) {
+            this.totalDrivingBeforeTime = new KTime(lastTripC.getLong(lastTripC.getColumnIndex(DBHelper.TRIP.KEY_DRIVING_TOTAL_AFTER)), KTime.TYPE_TIME_LENGTH);
+            this.totalNightBeforeTime = new KTime(lastTripC.getLong(lastTripC.getColumnIndex(DBHelper.TRIP.KEY_NIGHT_TOTAL_AFTER)), KTime.TYPE_TIME_LENGTH);
+        } else {
+            this.totalDrivingBeforeTime = new KTime(ZERO_TIME);
+            this.totalNightBeforeTime = new KTime(ZERO_TIME);
+        }
+        if (lastTripC != null) lastTripC.close();
+
 
         c.close();
 
@@ -383,10 +392,14 @@ public class KTrip extends Object implements KTimerHelper.TimerHelperInterface {
 
         apparentTotalTime = KTime.roundTimeToMinute(realTotalTime);
         apparentEndTime = KTime.addTimes(apparentStartTime, apparentTotalTime);
+        apparentEndTime.date = apparentStartTime.date;
+        apparentEndTime.month = apparentStartTime.month;
+        apparentEndTime.year = apparentStartTime.year;
         if (apparentEndTime.hours > 24) {
             apparentEndTime.hours -= 24;
             apparentEndTime.date += 1;
         }
+
 
         updateTotalDrivingAfterTime();
         updateTotalNightAfterTime();

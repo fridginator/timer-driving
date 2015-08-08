@@ -58,30 +58,19 @@ public class TripRecyclerAdapter extends RecyclerView.Adapter<TripRecyclerAdapte
         int textColour = isNight ? nightTextColour : dayTextColour;
 
 
-        int startTimeID = cursor.getInt(startTimeColumn);
-        int endTimeID = cursor.getInt(stopTimeColumn);
-        int totalTimeID = cursor.getInt(totalTimeColumn);
-        int totalDrivingTimeID = cursor.getInt(totalDrivingColumn);
-        int totalNightDrivingID = cursor.getInt(totalNightColumn);
-       // Log.w("logger",endTimeID+" endTimeID");
+        int startTime = cursor.getInt(startTimeColumn);
+        int endTime = cursor.getInt(stopTimeColumn);
+        int totalTime = cursor.getInt(totalTimeColumn);
+        int totalDrivingTime = cursor.getInt(totalDrivingColumn);
+        int totalNightDrivingTime = cursor.getInt(totalNightColumn);
 
-        KTime startTime = startTimeID != 0 ? dbHelper.getDBTime(startTimeID) : null;
+        String start = KTime.getProperReadable(startTime,Globals.TIMEFORMAT.H_MM,KTime.TYPE_DATETIME);
+        String end = KTime.getProperReadable(endTime, Globals.TIMEFORMAT.H_MM,KTime.TYPE_DATETIME);
+        String total = KTime.getProperReadable(totalTime, Globals.TIMEFORMAT.H_MM,KTime.TYPE_TIME_LENGTH);
+        String totalDriving = KTime.getProperReadable(totalDrivingTime, Globals.TIMEFORMAT.H_MM,KTime.TYPE_TIME_LENGTH);
+        String totalNightDriving = KTime.getProperReadable(totalNightDrivingTime, Globals.TIMEFORMAT.H_MM,KTime.TYPE_TIME_LENGTH);
 
-        String start = KTime.getProperReadable(startTime,Globals.TIMEFORMAT.H_MM);
-        String end = KTime.getProperReadable(
-                endTimeID == 0 ? null : dbHelper.getDBTime(endTimeID)
-                ,Globals.TIMEFORMAT.H_MM);
-        String total = KTime.getProperReadable(
-                totalTimeID == 0 ? null : dbHelper.getDBTime(totalTimeID)
-                ,Globals.TIMEFORMAT.H_MM);
-        String totalDriving = KTime.getProperReadable(
-                totalDrivingTimeID == 0 ? null : dbHelper.getDBTime(totalDrivingTimeID)
-                ,Globals.TIMEFORMAT.H_MM);
-        String totalNightDriving = KTime.getProperReadable(
-                totalNightDrivingID == 0 ? null : dbHelper.getDBTime(totalNightDrivingID)
-                ,Globals.TIMEFORMAT.H_MM);
-
-        viewHolder.vDate.setText(KTime.getProperReadable(startTime,Globals.TIMEFORMAT.WORDED_DATE));
+        viewHolder.vDate.setText(KTime.getProperReadable(startTime,Globals.TIMEFORMAT.WORDED_DATE,KTime.TYPE_DATETIME));
         viewHolder.vTimes.setText(start + " - " + end + "  (" + total + ")");
         viewHolder.vTotal.setText("Total-- " + totalDriving);
         viewHolder.vTotalNight.setText("Night-- " + totalNightDriving);
